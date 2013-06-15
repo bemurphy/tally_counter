@@ -94,7 +94,7 @@ to cause a count skip.</p>
 <a name="keys-and-scoring" class="anchor" href="#keys-and-scoring"><span class="octicon octicon-link"></span></a>Keys and Scoring</h2>
 
 <p>The system uses Redis sorted sets for tracking application hits.
-For each request, a key will be counted, and the score for the
+For each request, a key will be generated, and the score for the
 remote request ip will be incremented by 1.</p>
 
 <p>Keys are generated like 'tally_counter:1371283200' where the time
