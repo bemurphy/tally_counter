@@ -14,7 +14,7 @@ module TallyCounter
     end
 
     # Returns the floor time for a given window.  For example,
-    # if the interval is 5 minutes and it is 12:38, the floow
+    # if the interval is 5 minutes and it is 12:38, the floor
     # would be 12:35.  If offset is 1, the floor would be 12:30
     #
     # @param [Time] a time instance, commonly Time.now
