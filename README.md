@@ -56,6 +56,21 @@ headers['X-Tally-Counter-Skip'] = 'true'
 Note the mere presence of the header and not its value is enough
 to cause a count skip.
 
+# Redis connections
+
+Its advisable to inject your own Redis connection as well as use
+[hiredis-rb](https://github.com/pietern/hiredis-rb) for making connections
+to Redis.  hiredis is faster than the redis-rb driver as it wraps the
+C client.  Quickstart to get redis to connect with hiredis:
+
+```ruby
+require "redis"
+require "redis/connection/hiredis"
+require "tally_counter"
+```
+
+Redis connections you (or TallyCounter) create will now use the faster client.
+
 ## Keys and Scoring
 
 The system uses Redis sorted sets for tracking application hits.
