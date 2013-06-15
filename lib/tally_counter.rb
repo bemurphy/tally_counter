@@ -5,7 +5,6 @@ require "timeout"
 
 module TallyCounter
   class Window
-
     attr_reader :interval
 
     # @param [Integer] seconds of granularity for the window
@@ -23,7 +22,6 @@ module TallyCounter
       epoch_time = time.to_i - interval * offset
       Time.at((epoch_time / interval) * interval)
     end
-
   end
 
   class KeyGenerate
@@ -45,7 +43,6 @@ module TallyCounter
   end
 
   class Middleware
-
     # @param app - a rack compliant app
     # @param options
     # @option options :interval time in seconds for window granularity
@@ -92,6 +89,5 @@ module TallyCounter
     def key_generate
       @key_generate ||= TallyCounter::KeyGenerate.new(@interval, @namespace)
     end
-
   end
 end
