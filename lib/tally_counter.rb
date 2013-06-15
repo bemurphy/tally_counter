@@ -27,6 +27,8 @@ module TallyCounter
   end
 
   class KeyGenerate
+    NAME = 'tally_counter'.freeze
+
     # @param [Integer] a seconds interval for Window use
     # @param [String] optional app namespace
     def initialize(interval, namespace = nil)
@@ -38,7 +40,7 @@ module TallyCounter
     # @param [Integer] offset for window to step back
     def for(time, offset = 0)
       timestamp = @window.floor(time, offset).to_i
-      [@namespace, "tally_counter", timestamp].compact.join(':')
+      [@namespace, NAME, timestamp].compact.join(':')
     end
   end
 
