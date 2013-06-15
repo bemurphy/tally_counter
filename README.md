@@ -59,7 +59,7 @@ to cause a count skip.
 ## Keys and Scoring
 
 The system uses Redis sorted sets for tracking application hits.
-For each request, a key will be counted, and the score for the
+For each request, a key will be generated, and the score for the
 remote request ip will be incremented by 1.
 
 Keys are generated like 'tally_counter:1371283200' where the time
