@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Tally counter by bemurphy</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Tally counter</h1>
+        <p>Tally web application hits with Rack &amp; Redis sorted sets</p>
+
+        <p class="view"><a href="https://github.com/bemurphy/tally_counter">View the Project on GitHub <small>bemurphy/tally_counter</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/bemurphy/tally_counter/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/bemurphy/tally_counter/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/bemurphy/tally_counter">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="tallycounter" class="anchor" href="#tallycounter"><span class="octicon octicon-link"></span></a>TallyCounter</h1>
+
+<p>Tally web application hits with Rack &amp; Redis sorted sets</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<pre><code>gem 'tally_counter'
+</code></pre>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install tally_counter
+</code></pre>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>In your <code>config.ru</code> or middleware configuration:</p>
+
+<div class="highlight"><pre><span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span>
+
+<span class="c1"># Options</span>
+
+<span class="c1"># Provide a Redis instance</span>
+<span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span><span class="p">,</span> <span class="ss">:redis</span> <span class="o">=&gt;</span> <span class="vg">$redis</span>
+
+<span class="c1"># Use a 15 minute interval window</span>
+<span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span><span class="p">,</span> <span class="ss">:interval</span> <span class="o">=&gt;</span> <span class="mi">900</span>
+
+<span class="c1"># Use a namespace prefix for keys</span>
+<span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span><span class="p">,</span> <span class="ss">:namespace</span> <span class="o">=&gt;</span> <span class="s1">'my_app_name'</span>
+
+<span class="c1"># Timeout to Redis in 0.001 seconds</span>
+<span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span><span class="p">,</span> <span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="o">.</span><span class="mo">001</span>
+
+<span class="c1"># Inject a logger</span>
+<span class="n">use</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:Middleware</span><span class="p">,</span> <span class="ss">:logger</span> <span class="o">=&gt;</span> <span class="n">some_logger</span>
+</pre></div>
+
+<p>It is adviseable you configure <code>TallyCounter::Middleware</code> before
+your main application (so Rails, Sinatra, etc) but after your
+static/cache layer.  You probably don't want to be tracking hits
+against CSS, js, etc.</p>
+
+<p>If you wish to avoid counting actions from further down the stack,
+you may inject a response header:</p>
+
+<div class="highlight"><pre><span class="n">headers</span><span class="o">[</span><span class="s1">'X-Tally-Counter-Skip'</span><span class="o">]</span> <span class="o">=</span> <span class="s1">'true'</span>
+</pre></div>
+
+<p>Note the mere presence of the header and not its value is enough
+to cause a count skip.</p>
+
+<h2>
+<a name="keys-and-scoring" class="anchor" href="#keys-and-scoring"><span class="octicon octicon-link"></span></a>Keys and Scoring</h2>
+
+<p>The system uses Redis sorted sets for tracking application hits.
+For each request, a key will be counted, and the score for the
+remote request ip will be incremented by 1.</p>
+
+<p>Keys are generated like 'tally_counter:1371283200' where the time
+is the epoch seconds floor for the current window.  The floor for
+a 5 minute interval at 12:38 would be 12:35, at 12:33 its 12:30,
+and so on.</p>
+
+<p>It is recommended to use a scheduled process to inspect tally_counter
+sets past a certain age (say, 3 days) and prune them to keep your
+data set small and clean.</p>
+
+<p>Finding totals for a range of time can be accomplished via a Redis
+zunionstore on a range of keys.  For example, if you have a a 5
+minute interval and want to see the last 15 minutes, simple grab
+the current window and the 2 previous and union them with equally
+weighted scoring.  See <code>TallyCounter::Window#floow</code> for generating
+window times and offsets.</p>
+
+<h2>
+<a name="reporting" class="anchor" href="#reporting"><span class="octicon octicon-link"></span></a>Reporting</h2>
+
+<p>In the interest of giving this gem a single responsibility, reporting
+can be offloaded to other systems.  It should be easy to deploy
+a separate admin application conneted to the same server, and use
+the <code>TallyCounter::Window</code> class for generating keys.</p>
+
+<h2>
+<a name="todo" class="anchor" href="#todo"><span class="octicon octicon-link"></span></a>Todo</h2>
+
+<p>Extract key generation to a utility for use by middleware and client
+apps.</p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Added some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create new Pull Request</li>
+</ol>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/bemurphy">bemurphy</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
