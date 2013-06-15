@@ -28,8 +28,8 @@ module TallyCounter
   class KeyGenerate
     NAME = 'tally_counter'.freeze
 
-    # @param [Integer] a seconds interval for Window use
-    # @param [String] optional app namespace
+    # @param [Integer] interval for Window use
+    # @param [String] namespace prefix for keys
     def initialize(interval, namespace = nil)
       @window    = TallyCounter::Window.new(interval)
       @namespace = namespace
