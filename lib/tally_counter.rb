@@ -81,7 +81,7 @@ module TallyCounter
           @redis.zincrby current_key, 1, ip.to_s
         end
       rescue Timeout::Error, Redis::BaseError => e
-        @logger.error e.message
+        @logger.error "#{self.class.name} - #{e.message}"
       end
     end
 
