@@ -56,7 +56,7 @@ headers['X-Tally-Counter-Skip'] = 'true'
 Note the mere presence of the header and not its value is enough
 to cause a count skip.
 
-# Redis connections
+## Redis connections
 
 Its advisable to inject your own Redis connection as well as use
 [hiredis-rb](https://github.com/pietern/hiredis-rb) for making connections
