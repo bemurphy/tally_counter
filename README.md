@@ -67,6 +67,19 @@ is the epoch seconds floor for the current window.  The floor for
 a 5 minute interval at 12:38 would be 12:35, at 12:33 it's 12:30,
 and so on.
 
+Keys are generated using the `TallyCounter::KeyGenerate` class.
+This can be used in client applications for generating keys for
+Redis lookups.
+
+```ruby
+# Create a key generator for 5 minute windows with :foo namespace
+key_generate = TallyCounter::KeyGenerate.new(300, :foo)
+# Generate a key for the current time
+key_generate.for(Time.now)
+# Generate a key from 10 minutes ago
+key_generate.for(Time.now, 2)
+```
+
 It is recommended to use a scheduled process to inspect tally_counter
 sets past a certain age (say, 3 days) and prune them to keep your
 data set small and clean.
@@ -84,11 +97,6 @@ In the interest of giving this gem a single responsibility, reporting
 can be offloaded to other systems.  It should be easy to deploy
 a separate admin application connected to the same server, and use
 the `TallyCounter::Window` class for generating keys.
-
-## Todo
-
-Extract key generation to a utility for use by middleware and client
-apps.
 
 ## Contributing
 
