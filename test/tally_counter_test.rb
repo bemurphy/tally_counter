@@ -104,10 +104,9 @@ class TallyCounterMiddlewareTest < Test::Unit::TestCase
   end
 
   test "tolerating a timeout error" do
-    fake_redis = Object.new.tap do |r|
-      def r.zincrby(*)
-        sleep 5
-      end
+    fake_redis = Object.new
+    def fake_redis.zincrby(*)
+      sleep 5
     end
     self.app_options = {:redis => fake_redis}
 
@@ -116,10 +115,9 @@ class TallyCounterMiddlewareTest < Test::Unit::TestCase
   end
 
   test "tolerating a redis error" do
-    fake_redis = Object.new.tap do |r|
-      def r.zincrby(*)
-        raise Redis::ConnectionError
-      end
+    fake_redis = Object.new
+    def fake_redis.zincrby(*)
+      raise Redis::ConnectionError
     end
     self.app_options = {:redis => fake_redis}
 
