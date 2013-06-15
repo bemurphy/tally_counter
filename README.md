@@ -1,4 +1,4 @@
-# TallyCounter
+# TallyCounter [![Code Climate](https://codeclimate.com/github/bemurphy/tally_counter.png)](https://codeclimate.com/github/bemurphy/tally_counter)
 
 Tally web application hits with Rack & Redis sorted sets
 
