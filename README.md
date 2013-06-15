@@ -82,7 +82,7 @@ window times and offsets.
 
 In the interest of giving this gem a single responsibility, reporting
 can be offloaded to other systems.  It should be easy to deploy
-a separate admin application conneted to the same server, and use
+a separate admin application connected to the same server, and use
 the `TallyCounter::Window` class for generating keys.
 
 ## Todo
