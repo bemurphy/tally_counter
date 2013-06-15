@@ -18,7 +18,7 @@ module TallyCounter
     # would be 12:35.  If offset is 1, the floor would be 12:30
     #
     # @param [Time] a time instance, commonly Time.now
-    # @param [offet] an integer of windows step back to
+    # @param [Integer] an offset of windows step back
     def floor(time, offset = 0)
       epoch_time = time.to_i - interval * offset
       Time.at((epoch_time / interval) * interval)
