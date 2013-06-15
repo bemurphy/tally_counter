@@ -26,6 +26,22 @@ module TallyCounter
 
   end
 
+  class KeyGenerate
+    # @param [Integer] a seconds interval for Window use
+    # @param [String] optional app namespace
+    def initialize(interval, namespace = nil)
+      @window    = TallyCounter::Window.new(interval)
+      @namespace = namespace
+    end
+
+    # @param [Time] time for a key, often Time.now
+    # @param [Integer] offset for window to step back
+    def for(time, offset = 0)
+      timestamp = @window.floor(time, offset).to_i
+      [@namespace, "tally_counter", timestamp].compact.join(':')
+    end
+  end
+
   class Middleware
 
     # @param app - a rack compliant app
@@ -68,11 +84,11 @@ module TallyCounter
     end
 
     def current_key
-      [@namespace, "tally_counter", window_floor].compact.join(':')
+      key_generate.for(Time.now)
     end
 
-    def window_floor
-      TallyCounter::Window.new(@interval).floor(Time.now).to_i
+    def key_generate
+      @key_generate ||= TallyCounter::KeyGenerate.new(@interval, @namespace)
     end
 
   end

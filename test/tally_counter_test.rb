@@ -2,17 +2,15 @@ require "test/unit"
 require "rack/test"
 require File.expand_path('../../lib/tally_counter', __FILE__)
 
-module TestHelper
-  def test(name, &block)
+class TallyCounterTestCase < Test::Unit::TestCase
+  def self.test(name, &block)
     name = name.gsub(/\W+/, ' ').strip
     test_name = "test_#{name.gsub(/\s+/,'_')}".to_sym
     define_method(test_name, &block)
   end
 end
 
-class TallyCounterWindowTest < Test::Unit::TestCase
-  extend TestHelper
-
+class TallyCounterWindowTest < TallyCounterTestCase
   test "initializing with interval seconds" do
     window = TallyCounter::Window.new(60)
     assert_equal 60, window.interval
@@ -38,8 +36,30 @@ class TallyCounterWindowTest < Test::Unit::TestCase
   end
 end
 
-class TallyCounterMiddlewareTest < Test::Unit::TestCase
-  extend TestHelper
+class TallyCounterKeyGenerateTest < TallyCounterTestCase
+  def time
+    Time.parse('2013-06-15 08:52:41 -0700')
+  end
+
+  test "generating a key without a namespace" do
+    key_generate = TallyCounter::KeyGenerate.new(300)
+    assert_equal 'tally_counter:1371311400', key_generate.for(time)
+  end
+
+  test "generating a key with a namespace" do
+    key_generate = TallyCounter::KeyGenerate.new(300, :some_app)
+    assert_equal 'some_app:tally_counter:1371311400', key_generate.for(time)
+  end
+
+  test "generating a key for a given window offset" do
+    key_generate = TallyCounter::KeyGenerate.new(300, :some_app)
+    assert_equal 'some_app:tally_counter:1371311400', key_generate.for(time, 0)
+    assert_equal 'some_app:tally_counter:1371311100', key_generate.for(time, 1)
+    assert_equal 'some_app:tally_counter:1371310800', key_generate.for(time, 2)
+  end
+end
+
+class TallyCounterMiddlewareTest < TallyCounterTestCase
   include Rack::Test::Methods
 
   def redis
@@ -124,5 +144,4 @@ class TallyCounterMiddlewareTest < Test::Unit::TestCase
     assert_nothing_raised { get "/" }
     assert_match "ok", last_response.body
   end
-
 end
