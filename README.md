@@ -64,7 +64,7 @@ remote request ip will be incremented by 1.
 
 Keys are generated like 'tally_counter:1371283200' where the time
 is the epoch seconds floor for the current window.  The floor for
-a 5 minute interval at 12:38 would be 12:35, at 12:33 its 12:30,
+a 5 minute interval at 12:38 would be 12:35, at 12:33 it's 12:30,
 and so on.
 
 It is recommended to use a scheduled process to inspect tally_counter
