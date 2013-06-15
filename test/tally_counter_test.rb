@@ -66,9 +66,15 @@ class TallyCounterMiddlewareTest < TallyCounterTestCase
     @redis ||= Redis.new :db => 14
   end
 
+  def null_logger
+    logger = Object.new
+    def logger.error(*); end
+    logger
+  end
+
   def app_options
     options = @app_options || {}
-    {:redis => redis}.merge(options)
+    {:redis => redis, :logger => null_logger}.merge(options)
   end
 
   def app_options=(options)
