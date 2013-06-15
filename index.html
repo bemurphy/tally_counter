@@ -90,6 +90,21 @@ you may inject a response header:</p>
 <p>Note the mere presence of the header and not its value is enough
 to cause a count skip.</p>
 
+<h1>
+<a name="redis-connections" class="anchor" href="#redis-connections"><span class="octicon octicon-link"></span></a>Redis connections</h1>
+
+<p>Its advisable to inject your own Redis connection as well as use
+<a href="https://github.com/pietern/hiredis-rb">hiredis-rb</a> for making connections
+to Redis.  hiredis is faster than the redis-rb driver as it wraps the
+C client.  Quickstart to get redis to connect with hiredis:</p>
+
+<div class="highlight"><pre><span class="nb">require</span> <span class="s2">"redis"</span>
+<span class="nb">require</span> <span class="s2">"redis/connection/hiredis"</span>
+<span class="nb">require</span> <span class="s2">"tally_counter"</span>
+</pre></div>
+
+<p>Redis connections you (or TallyCounter) create will now use the faster client.</p>
+
 <h2>
 <a name="keys-and-scoring" class="anchor" href="#keys-and-scoring"><span class="octicon octicon-link"></span></a>Keys and Scoring</h2>
 
@@ -101,6 +116,18 @@ remote request ip will be incremented by 1.</p>
 is the epoch seconds floor for the current window.  The floor for
 a 5 minute interval at 12:38 would be 12:35, at 12:33 it's 12:30,
 and so on.</p>
+
+<p>Keys are generated using the <code>TallyCounter::KeyGenerate</code> class.
+This can be used in client applications for generating keys for
+Redis lookups.</p>
+
+<div class="highlight"><pre><span class="c1"># Create a key generator for 5 minute windows with :foo namespace</span>
+<span class="n">key_generate</span> <span class="o">=</span> <span class="ss">TallyCounter</span><span class="p">:</span><span class="ss">:KeyGenerate</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="ss">:foo</span><span class="p">)</span>
+<span class="c1"># Generate a key for the current time</span>
+<span class="n">key_generate</span><span class="o">.</span><span class="n">for</span><span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+<span class="c1"># Generate a key from 10 minutes ago</span>
+<span class="n">key_generate</span><span class="o">.</span><span class="n">for</span><span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
 
 <p>It is recommended to use a scheduled process to inspect tally_counter
 sets past a certain age (say, 3 days) and prune them to keep your
@@ -120,12 +147,6 @@ window times and offsets.</p>
 can be offloaded to other systems.  It should be easy to deploy
 a separate admin application connected to the same server, and use
 the <code>TallyCounter::Window</code> class for generating keys.</p>
-
-<h2>
-<a name="todo" class="anchor" href="#todo"><span class="octicon octicon-link"></span></a>Todo</h2>
-
-<p>Extract key generation to a utility for use by middleware and client
-apps.</p>
 
 <h2>
 <a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
