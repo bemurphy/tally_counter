@@ -91,9 +91,11 @@ class TallyCounterMiddlewareTest < Test::Unit::TestCase
   end
 
   test "skipping incrementing when X-Skip-Tally-Counter header is present" do
-    redis.del "tally_counter"
+    window = TallyCounter::Window.new(300)
+    key = "tally_counter:#{window.floor(Time.now).to_i}"
+    redis.del key, "127.0.0.1"
     get "/?skip=true"
-    assert_nil redis.zscore("tally_counter", "127.0.0.1")
+    assert_nil redis.zscore(key, "127.0.0.1")
   end
 
   test "passing through to the next app in middleware chain" do
