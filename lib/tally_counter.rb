@@ -16,8 +16,9 @@ module TallyCounter
     # if the interval is 5 minutes and it is 12:38, the floor
     # would be 12:35.  If offset is 1, the floor would be 12:30
     #
-    # @param [Time] a time instance, commonly Time.now
-    # @param [Integer] an offset of windows step back
+    # @param [Time] time instance, commonly Time.now
+    # @param [Integer] offset of windows step back
+    # @return [Time]
     def floor(time, offset = 0)
       epoch_time = time.to_i - interval * offset
       Time.at((epoch_time / interval) * interval)
@@ -36,6 +37,7 @@ module TallyCounter
 
     # @param [Time] time for a key, often Time.now
     # @param [Integer] offset for window to step back
+    # @return [String]
     def for(time, offset = 0)
       timestamp = @window.floor(time, offset).to_i
       [@namespace, NAME, timestamp].compact.join(':')
@@ -45,11 +47,11 @@ module TallyCounter
   class Middleware
     # @param app - a rack compliant app
     # @param options
-    # @option options :interval time in seconds for window granularity
-    # @option options :logger a logger instance
-    # @option options :namespace optional redis key namespace, like 'app_name'
-    # @option options :redis a redis instance
-    # @option options :timeout seconds before timing out a redis command
+    # @option options [Integer] :interval time in seconds for window granularity
+    # @option options [Logger] :logger a logger instance
+    # @option options [String] :namespace optional redis key namespace, like 'app_name'
+    # @option options [Redis] :redis a redis instance
+    # @option options [Integer] :timeout seconds before timing out a redis command
     def initialize(app, options = {})
       @app       = app
       @interval  = options[:interval] || 300
