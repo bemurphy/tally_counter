@@ -75,7 +75,7 @@ Finding totals for a range of time can be accomplished via a Redis
 zunionstore on a range of keys.  For example, if you have a a 5
 minute interval and want to see the last 15 minutes, simple grab
 the current window and the 2 previous and union them with equally
-weighted scoring.  See `TallyCounter::Window#floow` for generating
+weighted scoring.  See `TallyCounter::Window#floor` for generating
 window times and offsets.
 
 ## Reporting
